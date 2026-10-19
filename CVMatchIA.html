@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CVMatchIA - Evaluador de CVs</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script>
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    </script>
+    <style>
+        .loader {
+            border: 4px solid #e2e8f0;
+            border-top: 4px solid #2563eb;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    </style>
+</head>
+<body class="bg-slate-50 font-sans text-slate-800">
+
+    <nav class="bg-white shadow-sm border-b border-slate-200 px-8 py-4 flex justify-between items-center sticky top-0 z-10">
+        <div class="flex items-center gap-2">
+            <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+            <h1 class="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600">Talent AI Matcher</h1>
+        </div>
+        <div class="text-sm text-slate-500 font-medium">Powered by OpenRouter Free Tier</div>
+    </nav>
+
+    <div class="max-w-7xl mx-auto p-6 grid grid-cols-1 lg:grid-cols-12 gap-8 mt-4">
+        
+        <div class="lg:col-span-4 space-y-6">
+            
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                <h2 class="text-lg font-semibold mb-2 flex items-center gap-2">
+                    <svg class="w-5 h-5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path></svg>
+                    Credenciales OpenRouter
+                </h2>
+                <p class="text-xs text-slate-500 mb-3">La clave no requiere tarjeta de crédito ni pago.</p>
+                <input type="password" id="apiKey" placeholder="Pega tu OpenRouter API Key (sk-or-v1-...)" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all text-sm mb-4">
+                
+                <div class="p-3 bg-blue-50 border border-blue-100 rounded-lg text-xs text-slate-600">
+                    <p class="font-semibold text-blue-800 mb-1 flex items-center gap-1">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        Obtén tu clave gratis en 1 minuto:
+                    </p>
+                    <ol class="list-decimal pl-4 space-y-1">
+                        <li>Entra a <a href="https://openrouter.ai/keys" target="_blank" class="text-blue-600 hover:underline font-medium">openrouter.ai/keys</a> e inicia sesión con Google.</li>
+                        <li>Haz clic en <strong>"Create Key"</strong>.</li>
+                        <li>Cópiala y pégala en el campo de arriba.</li>
+                    </ol>
+                </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                <h2 class="text-lg font-semibold mb-2 flex items-center gap-2">
+                    <svg class="w-5 h-5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                    Descripción de la Vacante
+                </h2>
+                <p class="text-xs text-slate-500 mb-4">Pega los requisitos, responsabilidades y tecnologías clave del puesto.</p>
+                <textarea id="jobDescription" rows="8" placeholder="Ej: Buscamos un Desarrollador Backend con 3 años de experiencia en Python..." class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all text-sm resize-none"></textarea>
+            </div>
+
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                <h2 class="text-lg font-semibold mb-2 flex items-center gap-2">
+                    <svg class="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path></svg>
+                    Subir Currículums
+                </h2>
+                <p class="text-xs text-slate-500 mb-4">Sube uno o varios archivos PDF.</p>
+                <div class="border-2 border-dashed border-slate-300 rounded-lg p-6 text-center hover:bg-slate-50 transition-colors relative">
+                    <input type="file" id="cvFiles" multiple accept="application/pdf" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
+                    <svg class="mx-auto h-8 w-8 text-slate-400 mb-2" stroke="currentColor" fill="none" viewBox="0 0 48 48"><path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                    <p class="text-sm font-medium text-blue-600">Haz clic para seleccionar PDFs</p>
+                    <p class="text-xs text-slate-500 mt-1" id="fileCountText">0 archivos seleccionados</p>
+                </div>
+
+                <button id="evaluateBtn" class="w-full mt-6 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-lg transition-colors flex justify-center items-center gap-2 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                    Iniciar Evaluación
+                </button>
+            </div>
+        </div>
+
+        <div class="lg:col-span-8">
+            <div class="bg-white p-8 rounded-xl shadow-sm border border-slate-200 min-h-full">
+                <div class="flex justify-between items-center mb-6 border-b border-slate-100 pb-4">
+                    <h2 class="text-xl font-bold text-slate-800">Resultados del Match</h2>
+                    <span class="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded-full" id="statusBadge">Esperando datos</span>
+                </div>
+
+                <div id="loadingContainer" class="hidden flex-col items-center justify-center py-20">
+                    <div class="loader mb-4"></div>
+                    <p class="text-slate-500 font-medium animate-pulse text-center" id="loadingText">Analizando perfiles...</p>
+                </div>
+
+                <div id="resultsContainer" class="grid grid-cols-1 gap-6">
+                    <div id="emptyState" class="text-center py-20">
+                        <div class="bg-slate-50 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-4">
+                            <svg class="w-10 h-10 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                        </div>
+                        <h3 class="text-lg font-medium text-slate-800 mb-1">Aún no hay resultados</h3>
+                        <p class="text-slate-500 text-sm">Sube la vacante y los CVs para ver el análisis con IA.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const apiKeyInput = document.getElementById('apiKey');
+        const jobDescInput = document.getElementById('jobDescription');
+        const cvFilesInput = document.getElementById('cvFiles');
+        const fileCountText = document.getElementById('fileCountText');
+        const evaluateBtn = document.getElementById('evaluateBtn');
+        const resultsContainer = document.getElementById('resultsContainer');
+        const loadingContainer = document.getElementById('loadingContainer');
+        const emptyState = document.getElementById('emptyState');
+        const statusBadge = document.getElementById('statusBadge');
+        const loadingText = document.getElementById('loadingText');
+
+        cvFilesInput.addEventListener('change', (e) => {
+            const count = e.target.files.length;
+            fileCountText.textContent = count === 1 ? '1 archivo seleccionado' : `${count} archivos seleccionados`;
+        });
+
+        async function extractTextFromPDF(file) {
+            try {
+                const arrayBuffer = await file.arrayBuffer();
+                const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+                let fullText = '';
+                
+                for (let i = 1; i <= pdf.numPages; i++) {
+                    const page = await pdf.getPage(i);
+                    const textContent = await page.getTextContent();
+                    const pageText = textContent.items.map(item => item.str).join(' ');
+                    fullText += pageText + '\n';
+                }
+                return fullText;
+            } catch (error) {
+                console.error("Error extrayendo texto del PDF:", error);
+                throw new Error("No se pudo leer el contenido del PDF.");
+            }
+        }
+
+        async function analyzeCV(pdfText, jobDescription, apiKey, fileName) {
+            const endpoint = 'https://openrouter.ai/api/v1/chat/completions';
+            
+            const systemPrompt = `Actúa como reclutador senior de Talent Acquisition.
+Evalúa este currículum contra la vacante.
+[DESCRIPCIÓN DE LA VACANTE]
+${jobDescription}
+
+INSTRUCCIONES ESTRICTAS:
+1. Extrae el nombre del candidato.
+2. Calcula score_match del 0 al 100 de forma realista.
+3. Identifica hasta 4 fortalezas.
+4. Identifica hasta 4 brechas.
+5. Escribe una justificación breve (2 oraciones).
+6. Tu respuesta DEBE ser ÚNICAMENTE el objeto JSON que empiece con { y termine con }. NO agregues notas preliminares, prefijos de seguridad, ni bloques markdown.
+
+FORMATO JSON:
+{
+    "nombre_candidato": "Nombre",
+    "score_match": 85,
+    "fortalezas": ["..."],
+    "brechas": ["..."],
+    "justificacion": "..."
+}`;
+
+            const payload = {
+                model: "openrouter/free",
+                messages: [
+                    { role: "system", content: systemPrompt },
+                    { role: "user", content: `[CURRICULUM]\n\n${pdfText}` }
+                ],
+                temperature: 0.1
+            };
+
+            const response = await fetch(endpoint, {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${apiKey}`,
+                    'HTTP-Referer': window.location.href,
+                    'X-Title': 'Talent AI Matcher'
+                },
+                body: JSON.stringify(payload)
+            });
+
+            if (!response.ok) {
+                const err = await response.json();
+                throw new Error(err.error?.message || 'Error en OpenRouter');
+            }
+
+            const data = await response.json();
+            let rawContent = data.choices[0].message.content.trim();
+            
+            // Extracción robusta de JSON: localiza el primer '{' y el último '}'
+            const firstBrace = rawContent.indexOf('{');
+            const lastBrace = rawContent.lastIndexOf('}');
+            
+            if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+                const jsonSubstring = rawContent.substring(firstBrace, lastBrace + 1);
+                return JSON.parse(jsonSubstring);
+            }
+            
+            return JSON.parse(rawContent);
+        }
+
+        function getScoreColor(score) {
+            if (score >= 80) return 'text-emerald-600 bg-emerald-50 border-emerald-200';
+            if (score >= 60) return 'text-amber-600 bg-amber-50 border-amber-200';
+            return 'text-rose-600 bg-rose-50 border-rose-200';
+        }
+
+        function getProgressBarColor(score) {
+            if (score >= 80) return 'bg-emerald-500';
+            if (score >= 60) return 'bg-amber-500';
+            return 'bg-rose-500';
+        }
+
+        function createResultCard(result) {
+            const colors = getScoreColor(result.score_match);
+            const barColor = getProgressBarColor(result.score_match);
+            
+            const strengthsHTML = result.fortalezas && result.fortalezas.length > 0 
+                ? result.fortalezas.map(f => `<li class="flex items-start gap-2 text-sm text-slate-700"><svg class="w-4 h-4 text-emerald-500 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> <span>${f}</span></li>`).join('')
+                : '<li class="text-sm text-slate-500">No se encontraron fortalezas destacadas.</li>';
+                
+            const gapsHTML = result.brechas && result.brechas.length > 0 
+                ? result.brechas.map(b => `<li class="flex items-start gap-2 text-sm text-slate-700"><svg class="w-4 h-4 text-rose-500 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg> <span>${b}</span></li>`).join('')
+                : '<li class="text-sm text-slate-500">No se detectaron brechas críticas.</li>';
+
+            return `
+            <div class="border border-slate-200 rounded-xl p-6 bg-white hover:shadow-md transition-shadow">
+                <div class="flex justify-between items-start mb-4">
+                    <div>
+                        <h3 class="text-xl font-bold text-slate-800">${result.nombre_candidato || 'Candidato'}</h3>
+                        <p class="text-sm text-slate-500 mt-1">${result.justificacion || ''}</p>
+                    </div>
+                    <div class="flex flex-col items-end">
+                        <div class="px-4 py-2 rounded-lg border font-bold text-xl ${colors}">
+                            ${result.score_match}%
+                        </div>
+                        <span class="text-[10px] uppercase font-bold text-slate-400 mt-1 tracking-wider">Match Score</span>
+                    </div>
+                </div>
+                
+                <div class="w-full bg-slate-100 rounded-full h-2 mb-6">
+                    <div class="${barColor} h-2 rounded-full transition-all duration-1000" style="width: ${result.score_match}%"></div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-emerald-50/50 rounded-lg p-4 border border-emerald-100">
+                        <h4 class="font-semibold text-emerald-800 text-sm mb-3">Fortalezas</h4>
+                        <ul class="space-y-2">${strengthsHTML}</ul>
+                    </div>
+                    <div class="bg-rose-50/50 rounded-lg p-4 border border-rose-100">
+                        <h4 class="font-semibold text-rose-800 text-sm mb-3">Brechas Detectadas</h4>
+                        <ul class="space-y-2">${gapsHTML}</ul>
+                    </div>
+                </div>
+            </div>`;
+        }
+
+        evaluateBtn.addEventListener('click', async () => {
+            const apiKey = apiKeyInput.value.trim();
+            const jobDesc = jobDescInput.value.trim();
+            const files = cvFilesInput.files;
+
+            if (!apiKey) { alert("Por favor, ingresa tu API Key de OpenRouter."); return; }
+            if (!jobDesc) { alert("Por favor, ingresa la descripción de la vacante."); return; }
+            if (files.length === 0) { alert("Por favor, sube al menos un CV en PDF."); return; }
+
+            emptyState.style.display = 'none';
+            resultsContainer.innerHTML = '';
+            loadingContainer.style.display = 'flex';
+            evaluateBtn.disabled = true;
+            statusBadge.textContent = 'Procesando...';
+            statusBadge.className = 'bg-amber-100 text-amber-800 text-xs font-semibold px-2.5 py-0.5 rounded-full';
+
+            const results = [];
+
+            for (let i = 0; i < files.length; i++) {
+                document.getElementById('loadingText').innerHTML = `Analizando perfil ${i + 1} de ${files.length}...<br><span class="text-slate-400 text-sm">${files[i].name}</span>`;
+                try {
+                    const pdfText = await extractTextFromPDF(files[i]);
+                    const evaluation = await analyzeCV(pdfText, jobDesc, apiKey, files[i].name);
+                    results.push(evaluation);
+                } catch (e) {
+                    console.error(e);
+                    results.push({
+                        nombre_candidato: `Error en archivo: ${files[i].name}`,
+                        score_match: 0,
+                        fortalezas: [],
+                        brechas: ["Detalle: " + e.message],
+                        justificacion: e.message
+                    });
+                }
+            }
+
+            results.sort((a, b) => b.score_match - a.score_match);
+
+            loadingContainer.style.display = 'none';
+            results.forEach(res => resultsContainer.insertAdjacentHTML('beforeend', createResultCard(res)));
+            evaluateBtn.disabled = false;
+            statusBadge.textContent = 'Completado';
+            statusBadge.className = 'bg-emerald-100 text-emerald-800 text-xs font-semibold px-2.5 py-0.5 rounded-full';
+        });
+    </script>
+</body>
+</html>
